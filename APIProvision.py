@@ -453,10 +453,24 @@ if not country_asset:
     country_like_assets = [asset for asset in all_assets if any(keyword in asset['name'].upper() for keyword in ['COUNTRY', 'NATION', COUNTRY_NAME.upper()[:3]])]
     for asset in country_like_assets:
         print(f"  - {asset['name']} ({asset['type']})")
-    print("\nSolutions:")
-    print("1. Create the country asset manually in ThingsBoard UI")
-    print("2. Or update the detected country name to match existing assets")
-    exit(1)
+    
+    # Try to create the country asset automatically
+    print(f"\n🔄 Attempting to create country asset '{COUNTRY_NAME}' automatically...")
+    try:
+        # Create the country asset using the profile from config
+        country_asset = create_asset(COUNTRY_NAME, country_profile_id, COUNTRY_PROFILE_NAME)
+        print(f"✅ Successfully created country asset '{COUNTRY_NAME}'")
+        
+        # Add coordinates to the new country asset (using detected location)
+        send_asset_attributes("ASSET", country_asset["id"]["id"], LAT, LON)
+        
+    except Exception as e:
+        print(f"❌ Failed to create country asset: {e}")
+        print("\nManual Solutions:")
+        print("1. Create the country asset manually in ThingsBoard UI")
+        print("2. Or delete some unused assets to free up space")
+        print("3. Or update the country name in config.properties to match existing assets")
+        exit(1)
 
 # Step 2: Handle State Asset - Search by name regardless of type
 print("Checking if state asset exists...")
