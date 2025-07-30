@@ -1,2 +1,5 @@
 #ignore config file
 config.properties
+
+#ignore the .env
+.env
